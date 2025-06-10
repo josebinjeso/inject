@@ -5,7 +5,7 @@ minify = true
 
 [[kv_namespaces]]
 binding = "JOSE"
-id = "ac3eee4d513c4901accd137c94458fac"
+id = "254f03ecc6dc40609f54871511b3a7d3"
 
 [build]
 command = "cargo install worker-build && worker-build --release"
