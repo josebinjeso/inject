@@ -44,7 +44,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq
 
-          JSON_FILE="src/proxy/proxylist.json"
+          JSON_FILE="https://raw.githubusercontent.com/josebinjeso/inject/refs/heads/master/src/proxy/ProxyList.json"
 
           if [ -f "$JSON_FILE" ]; then
             echo "Found $JSON_FILE. Populating KV store..."
