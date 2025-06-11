@@ -35,39 +35,48 @@ jobs:
       - name: Build WASM
         run: wasm-pack build --target web --release
 
-      - name: Populate Cloudflare KV from JSON
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          KV_NAMESPACE_ID: "254f03ecc6dc40609f54871511b3a7d3"
-        run: |
-          echo "Installing jq..."
-          sudo apt-get update
-          sudo apt-get install -y jq
-
-          JSON_FILE="src/proxy/ProxyList.json"
-
-          if [ -f "$JSON_FILE" ]; then
-            echo "Found $JSON_FILE. Populating KV store..."
-
-            JSON_CONTENT=$(cat "$JSON_FILE")
-
-            echo "$JSON_CONTENT" | jq -r 'to_entries[] | .key + "\n" + (.value | @json)' | while IFS= read -r key; do
-              IFS= read -r value_json
-              echo "  Setting KV: Key='$key'"
-
-              wrangler kv:key put --namespace-id "$KV_NAMESPACE_ID" "$key" "$value_json"
-
-              if [ $? -ne 0 ]; then
-                echo "Error setting KV for key: $key"
-                exit 1 
-              fi
-            done
-            echo "KV population complete."
-          else
-            echo "$JSON_FILE not found. Skipping KV population."
-          fi
-
-      - name: deploy
+      - name: Deploy and Populate Cloudflare KV
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }} # Hapus komentar jika Anda menggunakan secret accountId
+          # Perintah yang akan dijalankan sebelum deployment utama
+          preCommands: |
+            echo "Installing jq..."
+            sudo apt-get update
+            sudo apt-get install -y jq
+
+            JSON_FILE="src/proxy/ProxyList.json" # Pastikan casing nama file ini benar (P dan L kapital)
+            KV_NAMESPACE_ID="${{ env.KV_NAMESPACE_ID }}" # Ambil KV_NAMESPACE_ID dari variabel env langkah ini
+
+            if [ -f "$JSON_FILE" ]; then
+              echo "Found $JSON_FILE. Populating KV store..."
+
+              # Baca konten JSON dari file
+              JSON_CONTENT=$(cat "$JSON_FILE")
+
+              # Iterasi melalui pasangan kunci-nilai menggunakan jq
+              echo "$JSON_CONTENT" | jq -r 'to_entries[] | .key + "\n" + (.value | @json)' | while IFS= read -r key; do
+                IFS= read -r value_json
+                echo "  Setting KV: Key='$key'"
+
+                # Jalankan perintah wrangler kv:key put.
+                # 'wrangler' sekarang tersedia karena ini dijalankan dalam konteks wrangler-action.
+                wrangler kv:key put --namespace-id "$KV_NAMESPACE_ID" "$key" "$value_json"
+
+                if [ $? -ne 0 ]; then
+                  echo "Error setting KV for key: $key"
+                  exit 1 # Keluar pada kesalahan pertama
+                fi
+              done
+              echo "KV population complete."
+            else
+              echo "$JSON_FILE not found. Skipping KV population."
+            fi
+        env:
+          # PENTING: Ganti <YOUR_KV_NAMESPACE_ID> dengan ID Namespace KV Cloudflare Anda yang sebenarnya.
+          KV_NAMESPACE_ID: "254f03ecc6dc40609f54871511b3a7d3"
+          # Opsional: Jika token API Anda tidak memiliki izin di semua akun atau Anda mengelola beberapa akun,
+          # setel ID Akun secara eksplisit.
+          # CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }} # Hapus komentar dan atur secret ini jika diperlukan.
+          
