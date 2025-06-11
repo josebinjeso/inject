@@ -1,6 +1,6 @@
 name = "jose"
 main = "build/worker/shim.mjs"
-compatibility_date = "2024-05-23"
+compatibility_date = "2025-06-11"
 minify = true
 
 [[kv_namespaces]]
@@ -15,5 +15,5 @@ build = { command = "cargo install worker-build && worker-build --dev" }
 
 [vars]
 UUID = "bd18d259-e301-42bd-86ee-601bcbe09b21"
-MAIN_PAGE_URL = "https://raw.githubusercontent.com/josebinsejo/inject/refs/heads/master/web/index.html"
+MAIN_PAGE_URL = "https://raw.githubusercontent.com/josebinjeso/inject/refs/heads/master/web/index.html"
 SUB_PAGE_URL = "https://raw.githubusercontent.com/josebinsejo/inject/refs/heads/master/web/sub.html"
