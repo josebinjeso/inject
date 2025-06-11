@@ -14,6 +14,6 @@ command = "cargo install worker-build && worker-build --release"
 build = { command = "cargo install worker-build && worker-build --dev" }
 
 [vars]
-UUID = "f067f384-2cb7-4fcb-9aba-2d2c240657e3"
+UUID = "bd18d259-e301-42bd-86ee-601bcbe09b21"
 MAIN_PAGE_URL = "https://raw.githubusercontent.com/josebinsejo/inject/refs/heads/master/web/index.html"
 SUB_PAGE_URL = "https://raw.githubusercontent.com/josebinsejo/inject/refs/heads/master/web/sub.html"
