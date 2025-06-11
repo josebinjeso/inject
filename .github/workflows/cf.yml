@@ -34,33 +34,8 @@ jobs:
 
       - name: Build WASM
         run: wasm-pack build --target web --release
-
-      - name: Deploy and Populate Cloudflare KV
+        
+      - name: deploy
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          preCommands: |
-            echo "Installing jq..."
-            sudo apt-get update
-            sudo apt-get install -y jq
-
-            JSON_FILE="src/proxy/ProxyList.json"
-            
-            if [ -f "$JSON_FILE" ]; then
-              echo "Found $JSON_FILE. Populating KV store..."
-              JSON_CONTENT=$(cat "$JSON_FILE")
-              echo "$JSON_CONTENT" | jq -r 'to_entries[] | .key + "\n" + (.value | @json)' | while IFS= read -r key; do
-                IFS= read -r value_json
-                echo "  Setting KV: Key='$key'"
-                wrangler kv:key put --namespace-id "$KV_NAMESPACE_ID" "$key" "$value_json"
-                if [ $? -ne 0 ]; then
-                  echo "Error setting KV for key: $key"
-                  exit 1
-                fi
-              done
-              echo "KV population complete."
-            else
-              echo "$JSON_FILE not found. Skipping KV population."
-            fi
-        env:
-        KV_NAMESPACE_ID: "254f03ecc6dc40609f54871511b3a7d3"
