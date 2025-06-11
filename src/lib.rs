@@ -61,7 +61,7 @@ async fn tunnel(req: Request, mut cx: RouteContext<Config>) -> Result<Response> 
         
         if proxy_kv_str.len() == 0 {
             console_log!("getting proxy kv from github...");
-            let req = Fetch::Url(Url::parse("https://github.com/josebinjeso/inject/blob/master/src/proxy/ProxyList.json")?);
+            let req = Fetch::Url(Url::parse("https://raw.githubusercontent.com/josebinjeso/inject/master/src/proxy/ProxyList.json")?);
             let mut res = req.send().await?;
             if res.status_code() == 200 {
                 proxy_kv_str = res.text().await?.to_string();
